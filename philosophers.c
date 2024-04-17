@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:31 by adonato           #+#    #+#             */
-/*   Updated: 2024/04/17 09:53:17 by aconti           ###   ########.fr       */
+/*   Updated: 2024/04/17 13:01:20 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,12 +25,11 @@ void print_formatted_time(char *str, t_philosopher *philo)
 	struct timeval time;
 
 	long milli;
-
+	
 	gettimeofday(&time, NULL);
 	milli = time.tv_sec * 1000 + time.tv_usec / 1000;
-	milli = time.tv_sec * 1000 + time.tv_usec / 1000;
 	pthread_mutex_lock(philo->data->writing);
-	printf("%ld %d %s\n", milli, philo->id, str);
+	printf("%ld			%d %s\n", milli - philo->data->start_time, philo->id, str);
 	pthread_mutex_unlock(philo->data->writing);
 }
 
@@ -54,72 +53,62 @@ void	*thread_function(void *arg)
 	t_philosopher	*philosopher;
 	struct timeval	tmp;
 	long			time;
-	long long		i;
-	long long		z;
 
-	i = 0;
-	z = 5;
 	philosopher = (t_philosopher *)arg;
-	while (philosopher->data->philo_init == 0)
-		custom_usleep(1);
-	if (philosopher->id % 2 != 0)
+	if (philosopher->data->philo_init == 0)
+	 	waiting(philosopher);
+	alone_philo(philosopher);
+	if (philosopher->id % 2 == 0)
 	{
 		print_formatted_time("is thinking", philosopher);
-		custom_usleep(60);
-		philosopher->thinking = 0;
+		custom_usleep(3);
+		philosopher->can_think = 0;
 	}
 	time = philosopher->last_meal;
 	while (1)
 	{	
-		if ((philosopher->next->id == philosopher->id) && (philosopher->next->thinking != 1))
-		{
-			philosopher->next->thinking = 1;		
-			print_formatted_time("is thinking", philosopher);	
-		}
-		if ((philosopher->fork == 1) && (philosopher->next->id != philosopher->id) && (philosopher->next->fork == 1) && (i != z) && (is_hungry(philosopher)))
+		if ((philosopher->fork == 1) && (philosopher->next->fork == 1) && (is_hungry(philosopher)))
 		{
 			print_formatted_time("has taken a fork", philosopher);
-			pthread_mutex_lock(philosopher->fork_mtx);			
+			pthread_mutex_lock(philosopher->fork_mtx);
 			pthread_mutex_lock(philosopher->next->fork_mtx);
 			philosopher->next->fork -= 1;
 			philosopher->fork += 1;
 			pthread_mutex_unlock(philosopher->next->fork_mtx);
 			pthread_mutex_unlock(philosopher->fork_mtx);
-		}		
+		}
 		if((philosopher->fork == 2))
 		{
-			print_formatted_time("is eating", philosopher);
 			gettimeofday(&tmp, NULL);			
 			time = tmp.tv_sec * 1000 + tmp.tv_usec / 1000;			
 			pthread_mutex_lock(philosopher->next->fork_mtx);
 			pthread_mutex_lock(philosopher->fork_mtx);
-			philosopher->thinking = 0;
-			philosopher->sleeping = 1;
+			philosopher->can_think = 0;
+			philosopher->can_sleep = 1;
 			philosopher->meals_counter++;
 			philosopher->last_meal = time;	
+			print_formatted_time("is eating", philosopher);
 			custom_usleep(philosopher->data->time_to_eat);
 			philosopher->fork -= 1;
 			philosopher->next->fork += 1;
-			i = z;
 			pthread_mutex_unlock(philosopher->next->fork_mtx);
 			pthread_mutex_unlock(philosopher->fork_mtx);
 		}
-		if ((!is_full(philosopher)) && (i == z) && (philosopher->sleeping == 1))
+		if ((!is_full(philosopher)) && (philosopher->can_sleep == 1))
 		{
 				pthread_mutex_lock(philosopher->next->fork_mtx);				
 				pthread_mutex_lock(philosopher->fork_mtx);			
-				i = 0;
-				philosopher->thinking = 1;
-				philosopher->sleeping = 0;
+				philosopher->can_think = 1;
+				philosopher->can_sleep = 0;
 				pthread_mutex_unlock(philosopher->fork_mtx);
-				pthread_mutex_unlock(philosopher->next->fork_mtx);				
+				pthread_mutex_unlock(philosopher->next->fork_mtx);
 				print_formatted_time("is sleeping", philosopher);
 				custom_usleep(philosopher->data->time_to_sleep);		
 		}
-		else if (philosopher->thinking == 1)
+		else if (philosopher->can_think == 1 && philosopher->data->philo_num % 2 == 1)
 		{
 			print_formatted_time("is thinking", philosopher);
-			philosopher->thinking = 0;
+			philosopher->can_think = 0;
 		}
 	}
 	return (0);
@@ -217,8 +206,8 @@ void	create_philo(t_data *data, t_philosopher **philo)
 		new_philo->full = 0;
 		new_philo->data = data;
 		new_philo->fork = 1;
-		new_philo->sleeping = 0;		
-		new_philo->thinking = 1;		
+		new_philo->can_sleep = 0;		
+		new_philo->can_think = 1;		
 		new_philo->meals_counter = 0;
 		new_philo->prev = prev_philo;
 		new_philo->next = NULL;
@@ -245,20 +234,7 @@ void	create_philo(t_data *data, t_philosopher **philo)
 
 int	is_hungry(t_philosopher *philo)
 {
-	int i;
-	int j;
-	long long k;
-	
-	j = 0;
-	i = -1;
-	k = philo->last_meal;
-	while (++i <= philo->data->philo_num)
-	{
-		if (k <= philo->next->last_meal)
-			++j;
-		philo = philo->next;
-	}
-	if (j == i)
+	if (philo->last_meal <= philo->next->last_meal)
 		return (1);
 	return(0);
 }
@@ -408,6 +384,9 @@ int main(int ac, char **av)
 {
 	t_data	data;
 	t_philosopher	*philosophers;
+	struct timeval time;
+	gettimeofday(&time, NULL);
+	data.start_time = time.tv_sec * 1000 + time.tv_usec / 1000;
 
 //	int i = 0;
 	if (!check_args(ac, av, &data))

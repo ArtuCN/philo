@@ -3,15 +3,15 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: adonato <marvin@42.fr>                     +#+  +:+       +#+         #
+#    By: aconti <aconti@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/09 15:10:21 by adonato           #+#    #+#              #
-#    Updated: 2024/04/09 15:10:21 by adonato          ###   ########.fr        #
+#    Updated: 2024/04/17 11:28:52 by aconti           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
-SRCS = philosophers.c
+SRCS = philosophers.c utils.c
 
 OBJS = ${SRCS:.c=.o}
 
