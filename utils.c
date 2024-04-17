@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:57 by adonato           #+#    #+#             */
-/*   Updated: 2024/04/17 13:08:57 by aconti           ###   ########.fr       */
+/*   Updated: 2024/04/17 17:01:41 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,16 @@ void alone_philo(t_philosopher *philo)
 
 void waiting(t_philosopher *philo)
 {
-	pthread_mutex_lock(philo->data->writing);
+	if (philo->id == 1)
+		pthread_mutex_lock(philo->data->writing);
 	while (1)
 	{
 		if (philo->data->philo_init == 1)
 			break ;
 		custom_usleep(1);
 	}
-	pthread_mutex_unlock(philo->data->writing);
+	if (philo->id == 1)	
+		pthread_mutex_unlock(philo->data->writing);
 }
 
 // int	is_hungry(t_philosopher *philo)

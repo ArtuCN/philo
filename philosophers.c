@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:31 by adonato           #+#    #+#             */
-/*   Updated: 2024/04/17 13:01:20 by aconti           ###   ########.fr       */
+/*   Updated: 2024/04/17 16:58:16 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,13 +55,12 @@ void	*thread_function(void *arg)
 	long			time;
 
 	philosopher = (t_philosopher *)arg;
-	if (philosopher->data->philo_init == 0)
-	 	waiting(philosopher);
+	waiting(philosopher);
 	alone_philo(philosopher);
-	if (philosopher->id % 2 == 0)
+	if ((philosopher->id % 2 == 0) || (philosopher->data->philo_num == philosopher->id ))
 	{
 		print_formatted_time("is thinking", philosopher);
-		custom_usleep(3);
+		custom_usleep(1);
 		philosopher->can_think = 0;
 	}
 	time = philosopher->last_meal;
@@ -77,7 +76,7 @@ void	*thread_function(void *arg)
 			pthread_mutex_unlock(philosopher->next->fork_mtx);
 			pthread_mutex_unlock(philosopher->fork_mtx);
 		}
-		if((philosopher->fork == 2))
+		if ((philosopher->fork == 2))
 		{
 			gettimeofday(&tmp, NULL);			
 			time = tmp.tv_sec * 1000 + tmp.tv_usec / 1000;			
@@ -86,8 +85,12 @@ void	*thread_function(void *arg)
 			philosopher->can_think = 0;
 			philosopher->can_sleep = 1;
 			philosopher->meals_counter++;
-			philosopher->last_meal = time;	
+			philosopher->last_meal = time;
+			pthread_mutex_unlock(philosopher->next->fork_mtx);
+			pthread_mutex_unlock(philosopher->fork_mtx);
 			print_formatted_time("is eating", philosopher);
+			pthread_mutex_lock(philosopher->next->fork_mtx);
+			pthread_mutex_lock(philosopher->fork_mtx);
 			custom_usleep(philosopher->data->time_to_eat);
 			philosopher->fork -= 1;
 			philosopher->next->fork += 1;
