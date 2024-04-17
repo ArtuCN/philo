@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:31 by adonato           #+#    #+#             */
-/*   Updated: 2024/04/17 08:48:26 by aconti           ###   ########.fr       */
+/*   Updated: 2024/04/17 09:53:17 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,20 +52,22 @@ void print_temp(char *str, t_philosopher *philo)
 void	*thread_function(void *arg)
 {
 	t_philosopher	*philosopher;
-//	struct timeval	last_meal_time;
 	struct timeval	tmp;
 	long			time;
-	//long			time2;
 	long long		i;
 	long long		z;
 
 	i = 0;
 	z = 5;
 	philosopher = (t_philosopher *)arg;
-//	gettimeofday(&last_meal_time, NULL);
+	while (philosopher->data->philo_init == 0)
+		custom_usleep(1);
 	if (philosopher->id % 2 != 0)
-		usleep(100);
-//	philosopher->last_meal = last_meal_time.tv_sec * 1000 + last_meal_time.tv_usec / 1000;
+	{
+		print_formatted_time("is thinking", philosopher);
+		custom_usleep(60);
+		philosopher->thinking = 0;
+	}
 	time = philosopher->last_meal;
 	while (1)
 	{	
@@ -79,15 +81,8 @@ void	*thread_function(void *arg)
 			print_formatted_time("has taken a fork", philosopher);
 			pthread_mutex_lock(philosopher->fork_mtx);			
 			pthread_mutex_lock(philosopher->next->fork_mtx);
-//			print_formatted_time("has taken a fork", philosopher);
-			philosopher->sleeping = 0;			
 			philosopher->next->fork -= 1;
 			philosopher->fork += 1;
-			if((philosopher->next->sleeping == 0) && (philosopher->next->thinking != 1))
-			{
-				philosopher->next->thinking = 1;
-				print_formatted_time("is thinking", philosopher->next);			
-			}
 			pthread_mutex_unlock(philosopher->next->fork_mtx);
 			pthread_mutex_unlock(philosopher->fork_mtx);
 		}		
@@ -98,102 +93,34 @@ void	*thread_function(void *arg)
 			time = tmp.tv_sec * 1000 + tmp.tv_usec / 1000;			
 			pthread_mutex_lock(philosopher->next->fork_mtx);
 			pthread_mutex_lock(philosopher->fork_mtx);
-			philosopher->meals_counter++;
-			philosopher->last_meal = time;
 			philosopher->thinking = 0;
-			philosopher->next->thinking = 0;			
+			philosopher->sleeping = 1;
+			philosopher->meals_counter++;
+			philosopher->last_meal = time;	
 			custom_usleep(philosopher->data->time_to_eat);
 			philosopher->fork -= 1;
 			philosopher->next->fork += 1;
 			i = z;
-//			print_formatted_time("has finished eating", philosopher);
 			pthread_mutex_unlock(philosopher->next->fork_mtx);
 			pthread_mutex_unlock(philosopher->fork_mtx);
-			//time2 = is_dead(philosopher, time);	
-			// if ((is_full(philosopher)))
-			// {
-			// 	exit (0);
-			// }
 		}
-		if ((!is_full(philosopher)) && (i == z))
+		if ((!is_full(philosopher)) && (i == z) && (philosopher->sleeping == 1))
 		{
 				pthread_mutex_lock(philosopher->next->fork_mtx);				
 				pthread_mutex_lock(philosopher->fork_mtx);			
-				philosopher->thinking = 0;
-				philosopher->sleeping = 1;
 				i = 0;
+				philosopher->thinking = 1;
+				philosopher->sleeping = 0;
 				pthread_mutex_unlock(philosopher->fork_mtx);
 				pthread_mutex_unlock(philosopher->next->fork_mtx);				
 				print_formatted_time("is sleeping", philosopher);
 				custom_usleep(philosopher->data->time_to_sleep);		
 		}
-				if (((philosopher->fork == 0) || (philosopher->next->fork == 2)) && (philosopher->next->id != philosopher->id))
+		else if (philosopher->thinking == 1)
 		{
-				pthread_mutex_lock(philosopher->next->fork_mtx);				
-				pthread_mutex_lock(philosopher->fork_mtx);	
-				philosopher->sleeping = 0;				
-				if(philosopher->thinking != 1)
-				{
-					philosopher->thinking = 1;
-					print_formatted_time("is thinking", philosopher);			
-				}
-				pthread_mutex_unlock(philosopher->fork_mtx);
-				pthread_mutex_unlock(philosopher->next->fork_mtx);			
+			print_formatted_time("is thinking", philosopher);
+			philosopher->thinking = 0;
 		}
-//		else if (is_full(philosopher))
-//				exit(0);
-//		print_temp("PRESA ", philosopher);
-//		if ((philosopher->meals_counter == philosopher->data->limit_meals) && (time2 == 0))
-//		{
-//			if (i != j)
-//			{
-//				i = j;
-//				print_formatted_time("FATTO", philosopher);
-//				philosopher->fork = 5;
-//				ft_printf(time, "FATTO", philosopher);
-//			}
-//		}
-//		time2 = is_dead(philosopher, time);
-//		if (time2 != 0)
-//		{
-//			print_formatted_time("is dead", philosopher);
-//			exit (0);
-//		}
-//		}
-//		if ((philosopher->meals_counter == philosopher->data->limit_meals) && (philosopher->fork != 10))
-//		{
-//			if (i != j)
-//			{
-//				i = j;
-//				print_formatted_time("FATTO", philosopher);
-//				philosopher->fork = 5;
-//				ft_printf(time, "FATTO", philosopher);
-//			}
-//		}
-/*			pthread_mutex_lock(philosopher->next->fork_mtx);
-		ft_printf(time, "has taken a fork", philosopher);
-		ft_printf(time, "fork:", philosopher->next);
-		pthread_mutex_unlock(philosopher->fork_mtx);
-		ft_printf(time, "has taken a fork", philosopher);
-		ft_printf(time, "fork:", philosopher);
-		gettimeofday(&last_meal_time, NULL);
-		ft_printf(time, "is eating", philosopher);
-		gettimeofday(&tmp, NULL);
-		time = tmp.tv_sec * 1000 + tmp.tv_usec / 1000;
-		time = philosopher->last_meal;
-		usleep(philosopher->data->time_to_eat);
-		philosopher->meals_counter++;
-		pthread_mutex_unlock(philosopher->fork_mtx);
-		pthread_mutex_unlock(philosopher->next->fork_mtx);
-		ft_printf(time, "is sleeping", philosopher);
-		usleep(philosopher->data->time_to_sleep);
-		ft_printf(time, "is thinking", philosopher);
-		time2 = is_dead(philosopher, time);
-		if (!time2)
-			return (0);
-		if (philosopher->meals_counter
-			== philosopher->data->limit_meals)
-			return (0) ; */
 	}
 	return (0);
 }
@@ -205,7 +132,9 @@ void *stop(void *arg)
 	struct timeval t;
 	long long temp;
 	int		i = -1;
-	
+
+	while (data->philo_init == 0)
+		custom_usleep(1);
 	while (1)
 	{
 		gettimeofday(&t, NULL);
@@ -231,23 +160,7 @@ void *stop(void *arg)
 		}
 		data->philosophers = data->philosophers->next;
 		if (is_full(data->philosophers))
-		{
-			// i = -1;
-			// while (++i < data->philo_num)
-			// {
-			// 	pthread_mutex_unlock(data->philosophers->fork_mtx);
-			// 	pthread_mutex_lock(data->philosophers->fork_mtx);
-			// 	data->philosophers = data->philosophers->next;		
-				
-			// }
-			// i = -1;
-			// while (++i < data->philo_num)
-			// {
-			// 	pthread_mutex_unlock(data->philosophers->fork_mtx);
-			// 	pthread_th
-			// }
 			exit(0);
-		}
 	}
 }
 	
@@ -257,6 +170,7 @@ void	thread_init(t_philosopher **philo)
 	int	i;
 	
 	i = -1;
+	(*philo)->data->philo_init = 0;
 	pthread_create(&(*philo)->data->check, NULL, stop, (void *)(*philo)->data);
 	while (++i < (*philo)->data->philo_num)
 	{
@@ -264,6 +178,7 @@ void	thread_init(t_philosopher **philo)
 		(*philo) = (*philo)->next;
 	}
 	i = -1;
+	(*philo)->data->philo_init = 1;
 	while (++i < (*philo)->data->philo_num)
 	{
 		pthread_join((*philo)->thread, NULL);
@@ -303,7 +218,7 @@ void	create_philo(t_data *data, t_philosopher **philo)
 		new_philo->data = data;
 		new_philo->fork = 1;
 		new_philo->sleeping = 0;		
-		new_philo->thinking = 0;		
+		new_philo->thinking = 1;		
 		new_philo->meals_counter = 0;
 		new_philo->prev = prev_philo;
 		new_philo->next = NULL;
