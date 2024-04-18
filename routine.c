@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/09 15:10:57 by adonato           #+#    #+#             */
-/*   Updated: 2024/04/18 14:40:43 by aconti           ###   ########.fr       */
+/*   Created: 2024/04/18 13:35:29 by aconti            #+#    #+#             */
+/*   Updated: 2024/04/18 14:42:20 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-
-void alone_philo(t_philosopher *philo)
+void is_eating(t_philosopher **philo)
 {
-	if (philo->data->philo_num == 1)
-	{
-		print_formatted_time("is thinking", philo);
-		usleep(philo->data->time_to_die);
-	}
+	long	time;
+	struct timeval	tmp;
+	gettimeofday(&tmp, NULL);			
+	time = tmp.tv_sec * 1000 + tmp.tv_usec / 1000;
+	(*philo)->meals_counter++;
+	(*philo)->last_meal = time;
+	print_formatted_time("is eating", (*philo));
+	custom_usleep( (*philo)->data->time_to_eat);
 }
