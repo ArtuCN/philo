@@ -6,12 +6,12 @@
 #    By: aconti <aconti@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/09 15:10:21 by adonato           #+#    #+#              #
-#    Updated: 2024/04/18 13:44:31 by aconti           ###   ########.fr        #
+#    Updated: 2024/04/23 13:59:41 by aconti           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
-SRCS = philosophers.c utils.c routine.c
+SRCS = philosophers.c utils.c routine.c free_all.c
 
 OBJS = ${SRCS:.c=.o}
 

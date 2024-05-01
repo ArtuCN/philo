@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:41 by adonato           #+#    #+#             */
-/*   Updated: 2024/04/18 14:53:14 by aconti           ###   ########.fr       */
+/*   Updated: 2024/05/01 12:06:17 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,9 @@ typedef struct s_data
 	long			time_to_sleep;
 	long			limit_meals;
 	long			start_time;
-	bool			end;
+	int			end;
 	pthread_t		check;
-	mtx_t			*start;
+	mtx_t			*death;
 	int			philo_init;
 	mtx_t			*writing;
 	t_philosopher 	*philosophers;
@@ -50,6 +50,8 @@ typedef struct s_data
 typedef struct s_philosopher
 {
 	int					id;
+	mtx_t				*eating;
+	long				start_time;
 	int					meals_counter;
 	long					last_meal;
 	mtx_t					*fork_mtx;
@@ -66,13 +68,13 @@ long	ft_atol(char *nptr);
 void	create_philo(t_data *data, t_philosopher **philo);
 void	thread_init(t_philosopher **philo);
 void	*thread_function(void *arg);
-long	is_dead(t_philosopher *philo, long last_meal);
 int	is_full(t_philosopher *philo);
 void *stop(void *arg);
 void	custom_usleep(long value);
-int	is_hungry(t_philosopher *philo);
 void alone_philo(t_philosopher *philo);
 void print_formatted_time(char *str, t_philosopher *philo);
+void finish(t_data **data);
+void free_data(t_data *data);
 
 
 #endif
