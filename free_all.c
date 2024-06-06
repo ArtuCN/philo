@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/23 13:59:31 by aconti            #+#    #+#             */
-/*   Updated: 2024/06/06 12:28:09 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/06 15:54:09 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,15 @@ void	free_philo(t_philosopher **philosopher)
 	philo = *philosopher;
 	while (++i < n && philo != NULL)
 	{
-		philo = philo->next;
 		tmp = philo;
-		tmp->prev = NULL;
+		philo = philo->next;
 		pthread_mutex_unlock(tmp->fork_mtx);
 		pthread_mutex_destroy(tmp->fork_mtx);
+		pthread_mutex_unlock(tmp->eating);
+		pthread_mutex_destroy(tmp->eating);
 		free(tmp->fork_mtx);
+		free(tmp->eating);
 		free(tmp);
-		tmp = NULL;
 	}
 }
 
