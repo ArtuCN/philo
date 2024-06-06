@@ -1,3 +1,4 @@
 /.vscode
 /philo
 /philosophers.o
+/*.o
