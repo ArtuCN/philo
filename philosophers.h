@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:41 by adonato           #+#    #+#             */
-/*   Updated: 2024/06/06 14:37:37 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/07 11:44:07 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void			thread_init(t_philosopher **philo);
 void			*thread_function(void *arg);
 int				is_full(t_philosopher *philo);
 void			*stop(void *arg);
-void			alone_philo(t_philosopher *philo);
+int				alone_philo(t_philosopher *philo);
 void			print_formatted_time(char *str, t_philosopher *philo);
 void			finish(t_data **data);
 void			free_data(t_data *data);
@@ -79,5 +79,6 @@ int				init(t_philosopher **new_philo, t_data *data,
 int				ft_malloc_init(t_philosopher **new_philo);
 unsigned int	get_time(unsigned int start);
 int				check_stop_death(t_data *data);
+void			philo_list(t_philosopher *new_philo, t_philosopher *prev_philo);
 
 #endif

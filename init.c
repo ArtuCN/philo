@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 10:54:25 by aconti            #+#    #+#             */
-/*   Updated: 2024/06/06 14:59:20 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/07 11:39:05 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,11 @@ void	thread_init(t_philosopher **philo)
 	int	i;
 
 	i = 0;
+	if ((*philo)->data->philo_num == 1)
+	{
+		alone_philo((*philo));
+		return ;
+	}
 	(*philo)->data->philo_init = 0;
 	while (i++ < (*philo)->data->philo_num)
 	{

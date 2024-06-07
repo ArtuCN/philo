@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 13:35:29 by aconti            #+#    #+#             */
-/*   Updated: 2024/06/06 11:58:53 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/07 11:39:18 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@ void	*thread_function(void *arg)
 	t_philosopher	*philosopher;
 
 	philosopher = (t_philosopher *)arg;
-	philosopher->start_time = get_time(0);
-	alone_philo(philosopher);
 	if (philosopher->id % 2 == 0 && philosopher->data->end == 0)
 	{
 		print_formatted_time("is thinking", philosopher);

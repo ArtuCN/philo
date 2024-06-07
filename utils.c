@@ -6,11 +6,17 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:57 by adonato           #+#    #+#             */
-/*   Updated: 2024/06/06 12:10:44 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/07 11:43:51 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+void	philo_list(t_philosopher *new_philo, t_philosopher *prev_philo)
+{
+	prev_philo->next = new_philo;
+	new_philo->prev = prev_philo;
+}
 
 int	check_stop_death(t_data *data)
 {
@@ -49,11 +55,10 @@ void	finish(t_data **data)
 	pthread_mutex_unlock((*data)->death);
 }
 
-void	alone_philo(t_philosopher *philo)
+int	alone_philo(t_philosopher *philo)
 {
-	if (philo->data->philo_num == 1)
-	{
-		print_formatted_time("is thinking", philo);
-		usleep(philo->data->time_to_die * 1000);
-	}
+	print_formatted_time("is thinking", philo);
+	usleep(philo->data->time_to_die);
+	print_formatted_time("is dead", philo);
+	return (0);
 }

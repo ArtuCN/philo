@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:31 by adonato           #+#    #+#             */
-/*   Updated: 2024/06/06 12:10:23 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/07 11:48:05 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,13 +60,11 @@ void	create_philo(t_data *data, t_philosopher **philo)
 		ft_malloc_init(&new_philo);
 		init(&new_philo, data, &prev_philo, i);
 		new_philo->last_meal = tmp.tv_sec * 1000 + tmp.tv_usec / 1000;
+		new_philo->start_time = get_time(0);
 		if (prev_philo == NULL)
 			philo[0] = new_philo;
 		else
-		{
-			prev_philo->next = new_philo;
-			new_philo->prev = prev_philo;
-		}
+			philo_list(new_philo, prev_philo);
 		prev_philo = new_philo;
 	}
 	new_philo->next = philo[0];
@@ -87,11 +85,11 @@ long	ft_atol(char *nptr)
 		nptr++;
 	while (*nptr != '\0' && *nptr <= '9' && *nptr >= '0')
 	{
-		if (*nptr < '0' || *nptr > '9')
-			return (-1);
 		n *= 10;
 		n += (*nptr++ - 48);
 	}
+	if ((*nptr < '0' || *nptr > '9') && *nptr != '\0')
+		return (-1);
 	if (n > INT_MAX)
 		n = -1;
 	return ((int)n);
