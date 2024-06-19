@@ -6,7 +6,7 @@
 #    By: aconti <aconti@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/09 15:10:21 by adonato           #+#    #+#              #
-#    Updated: 2024/06/11 18:19:15 by aconti           ###   ########.fr        #
+#    Updated: 2024/06/19 11:13:37 by aconti           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -59,7 +59,7 @@ clean:
 		@ echo $(CYAN)"- - - - - - -" $(NONE)
 
 fclean:
-		rm -rf $(NAME)
+		rm -rf $(NAME) $(OBJS)
 		@ echo $(DARK_GREEN)"- - - - - - - -" $(NONE)
 		@ echo $(PURPLE)"Fcleaning Done!"$(NONE)
 		@ echo $(DARK_GREEN)"- - - - - - - -" $(NONE)
