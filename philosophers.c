@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:31 by adonato           #+#    #+#             */
-/*   Updated: 2024/06/07 11:48:05 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/19 17:26:24 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,22 +26,22 @@ void	create_philo(t_data *data, t_philosopher **philo);
 
 void	*stop(void *arg)
 {
-	t_data			*data;
+	t_philosopher			*philo;
 
-	data = (t_data *)arg;
+	philo = (t_philosopher *)arg;
 	while (1)
 	{
-		usleep(data->time_to_die);
-		if (check_stop_death(data))
+		usleep(philo->data->time_to_die);
+		if (check_stop_death(philo))
 			return (NULL);
-		pthread_mutex_lock(data->death);
-		if (is_full(data->philosophers))
+		pthread_mutex_lock(philo->eating);
+		if (is_full(philo->data->philosophers))
 		{
-			finish(&data);
+			finish(&philo->data);
 			return (0);
 		}
 		else
-			pthread_mutex_unlock(data->death);
+			pthread_mutex_unlock(philo->eating);
 	}
 }
 
@@ -81,8 +81,10 @@ long	ft_atol(char *nptr)
 		return (-1);
 	while (*nptr == 32 || (*nptr >= '\t' && *nptr <= '\r'))
 		nptr++;
-	if (*nptr == '-' || *nptr == '+')
+	if (*nptr == '+')
 		nptr++;
+	if (*nptr == '-')
+		return (-1);
 	while (*nptr != '\0' && *nptr <= '9' && *nptr >= '0')
 	{
 		n *= 10;
@@ -108,8 +110,11 @@ int	is_full(t_philosopher *philo)
 	pthread_mutex_lock(philo->data->writing);
 	while (++i <= philo->data->philo_num)
 	{
+		pthread_mutex_unlock(philo->eating);
+		pthread_mutex_lock(philo->eating);
 		if ((philo->meals_counter >= philo->data->limit_meals))
 			++j;
+		pthread_mutex_unlock(philo->eating);
 		philo = philo->next;
 	}
 	pthread_mutex_unlock(philo->data->writing);

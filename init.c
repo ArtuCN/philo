@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 10:54:25 by aconti            #+#    #+#             */
-/*   Updated: 2024/06/07 11:39:05 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/19 14:08:57 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,13 +97,13 @@ void	thread_init(t_philosopher **philo)
 			thread_function, (void *)(*philo));
 		(*philo) = (*philo)->next;
 	}
-	pthread_create(&(*philo)->data->check, NULL, stop, (void *)(*philo)->data);
-	pthread_detach((*philo)->data->check);
+	
 	i = -1;
 	(*philo)->data->philo_init = 1;
 	while (++i < (*philo)->data->philo_num)
 	{
 		(*philo) = (*philo)->next;
 		pthread_join((*philo)->thread, NULL);
+		pthread_join((*philo)->check, NULL);
 	}
 }
