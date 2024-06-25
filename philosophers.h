@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:41 by adonato           #+#    #+#             */
-/*   Updated: 2024/06/19 11:27:18 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/07 11:44:07 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ typedef struct s_data
 	long			limit_meals;
 	long			start_time;
 	int				end;
-	// pthread_t		check;
+	pthread_t		check;
 	t_mtx			*death;
 	int				philo_init;
 	t_mtx			*writing;
@@ -56,7 +56,6 @@ typedef struct s_philosopher
 	t_mtx					*fork_mtx;
 	struct s_data			*data;
 	pthread_t				thread;
-	pthread_t				check;
 	struct s_philosopher	*prev;
 	struct s_philosopher	*next;
 }	t_philosopher;
@@ -79,7 +78,7 @@ int				init(t_philosopher **new_philo, t_data *data,
 					t_philosopher **prev_philo, int i);
 int				ft_malloc_init(t_philosopher **new_philo);
 unsigned int	get_time(unsigned int start);
-int				check_stop_death(t_philosopher *philo);
+int				check_stop_death(t_data *data);
 void			philo_list(t_philosopher *new_philo, t_philosopher *prev_philo);
 
 #endif

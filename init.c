@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/06 10:54:25 by aconti            #+#    #+#             */
-/*   Updated: 2024/06/19 14:08:57 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/15 12:25:39 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,11 @@ int	check_args(int ac, char **av, t_data *data)
 	{
 		data->limit_meals = ft_atol(av[5]);
 		if (data->limit_meals <= 0)
-			return (0);
+			return (free_data(data), 0);
 	}
 	if (data->philo_num <= 0 || data->time_to_die <= 0
 		|| data->time_to_eat <= 0 || data->time_to_sleep <= 0)
-		return (0);
+		return (free_data(data), 0);
 	return (1);
 }
 
@@ -97,13 +97,13 @@ void	thread_init(t_philosopher **philo)
 			thread_function, (void *)(*philo));
 		(*philo) = (*philo)->next;
 	}
-	
+	pthread_create(&(*philo)->data->check, NULL, stop, (void *)(*philo)->data);
+	pthread_detach((*philo)->data->check);
 	i = -1;
 	(*philo)->data->philo_init = 1;
 	while (++i < (*philo)->data->philo_num)
 	{
 		(*philo) = (*philo)->next;
 		pthread_join((*philo)->thread, NULL);
-		pthread_join((*philo)->check, NULL);
 	}
 }

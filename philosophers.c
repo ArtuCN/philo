@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:31 by adonato           #+#    #+#             */
-/*   Updated: 2024/06/19 17:26:24 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/25 12:13:17 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,23 +26,48 @@ void	create_philo(t_data *data, t_philosopher **philo);
 
 void	*stop(void *arg)
 {
-	t_philosopher			*philo;
+	t_data			*data;
 
-	philo = (t_philosopher *)arg;
+	data = (t_data *)arg;
 	while (1)
 	{
-		usleep(philo->data->time_to_die);
-		if (check_stop_death(philo))
+		usleep(data->time_to_die);
+		if (check_stop_death(data))
 			return (NULL);
-		pthread_mutex_lock(philo->eating);
-		if (is_full(philo->data->philosophers))
+		pthread_mutex_lock(data->death);
+		if (is_full(data->philosophers))
 		{
-			finish(&philo->data);
+			finish(&data);
 			return (0);
 		}
 		else
-			pthread_mutex_unlock(philo->eating);
+			pthread_mutex_unlock(data->death);
 	}
+}
+
+int	is_full(t_philosopher *philo)
+{
+	int	i;
+	int	j;
+
+	j = 0;
+	i = -1;
+	if (philo->data->limit_meals == -1)
+		return (0);
+	pthread_mutex_unlock(philo->data->death);
+	pthread_mutex_lock(philo->data->death);
+	while (++i <= philo->data->philo_num)
+	{
+		pthread_mutex_lock(philo->eating);
+		if ((philo->meals_counter >= philo->data->limit_meals))
+			++j;
+		pthread_mutex_unlock(philo->eating);
+		philo = philo->next;
+	}
+	pthread_mutex_unlock(philo->data->death);
+	if (j == i)
+		return (1);
+	return (0);
 }
 
 void	create_philo(t_data *data, t_philosopher **philo)
@@ -81,10 +106,10 @@ long	ft_atol(char *nptr)
 		return (-1);
 	while (*nptr == 32 || (*nptr >= '\t' && *nptr <= '\r'))
 		nptr++;
-	if (*nptr == '+')
-		nptr++;
 	if (*nptr == '-')
 		return (-1);
+	if (*nptr == '+')
+		nptr++;
 	while (*nptr != '\0' && *nptr <= '9' && *nptr >= '0')
 	{
 		n *= 10;
@@ -95,32 +120,6 @@ long	ft_atol(char *nptr)
 	if (n > INT_MAX)
 		n = -1;
 	return ((int)n);
-}
-
-int	is_full(t_philosopher *philo)
-{
-	int	i;
-	int	j;
-
-	j = 0;
-	i = -1;
-	if (philo->data->limit_meals == -1)
-		return (0);
-	pthread_mutex_unlock(philo->data->writing);
-	pthread_mutex_lock(philo->data->writing);
-	while (++i <= philo->data->philo_num)
-	{
-		pthread_mutex_unlock(philo->eating);
-		pthread_mutex_lock(philo->eating);
-		if ((philo->meals_counter >= philo->data->limit_meals))
-			++j;
-		pthread_mutex_unlock(philo->eating);
-		philo = philo->next;
-	}
-	pthread_mutex_unlock(philo->data->writing);
-	if (j == i)
-		return (1);
-	return (0);
 }
 
 int	main(int ac, char **av)
