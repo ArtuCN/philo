@@ -6,7 +6,7 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/09 15:10:31 by adonato           #+#    #+#             */
-/*   Updated: 2024/06/25 12:13:17 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/25 20:16:33 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	*stop(void *arg)
 	data = (t_data *)arg;
 	while (1)
 	{
-		usleep(data->time_to_die);
+		usleep(10);
 		if (check_stop_death(data))
 			return (NULL);
 		pthread_mutex_lock(data->death);

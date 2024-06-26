@@ -6,11 +6,23 @@
 /*   By: aconti <aconti@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/18 13:35:29 by aconti            #+#    #+#             */
-/*   Updated: 2024/06/25 12:13:49 by aconti           ###   ########.fr       */
+/*   Updated: 2024/06/25 20:04:20 by aconti           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+int	end_while(t_data *data)
+{
+	pthread_mutex_lock(data->death);
+	if (data->end == 1)
+	{
+		pthread_mutex_unlock(data->death);
+		return (0);
+	}
+	pthread_mutex_unlock(data->death);
+	return (1);
+}
 
 void	*thread_function(void *arg)
 {
@@ -24,19 +36,16 @@ void	*thread_function(void *arg)
 		print_formatted_time("is thinking", philosopher);
 		usleep(philosopher->data->time_to_eat * 1000);
 	}
-	while (philosopher->data->end == 0)
+	while (end_while(data))
 	{
 		take_forks(&philosopher);
 		is_eating(&philosopher);
-		pthread_mutex_lock(data->death);
-		if (data->end == 0)
-			print_formatted_time("is sleeping", philosopher);
-		pthread_mutex_unlock(data->death);
+		print_formatted_time("is sleeping", philosopher);
 		usleep(data->time_to_sleep * 1000);
-		pthread_mutex_lock(data->death);
-		if (data->end == 0)
-			print_formatted_time("is thinking", philosopher);
-		pthread_mutex_unlock(data->death);
+		print_formatted_time("is thinking", philosopher);
+		if (philosopher->data->limit_meals != -1
+			&& philosopher->meals_counter >= philosopher->data->limit_meals)
+			break ;
 	}
 	return (NULL);
 }
